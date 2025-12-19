@@ -447,7 +447,7 @@ bot.on('message', async (msg) => {
 	const chatId = msg.chat.id;
 const text = msg.text || '';
 
-const state = dialogues.get(chatId) || {};
+const state = dialogues.get(chatId) || { step: 'intro' };
 
 if (state.step === 'waiting_test_done' && isTestDone(text)) {
     // 1) подтверждаем кандидату
@@ -483,7 +483,7 @@ if (state.step === 'waiting_test_done' && isTestDone(text)) {
         if (!text || text.startsWith('/')) return;
 
     // получаем состояние диалога
-    const state = dialogues.get(chatId) || { step: 'intro' };
+    
 
     let prompt = '';
 
@@ -587,27 +587,26 @@ bot.on('callback_query', async (query) => {
     if (query.data === 'start_test') {
         await bot.answerCallbackQuery(query.id);
 
+        const tgId = query.from.id;
+        const name = encodeURIComponent(query.from.first_name || 'Кандидат');
+
+        const testLink = `https://happysnacktest.netlify.app/?tg_id=${tgId}&name=${name}`;
+
         await bot.sendMessage(
             chatId,
-            '📝 Отлично! Вот ссылка на тест:\n\n👉 const tgId = query.from.id;
-const name = encodeURIComponent(query.from.first_name || 'Кандидат');
-
-const testLink = `https://happysnacktest.netlify.app/?tg_id=${tgId}&name=${name}`;
-
-await bot.sendMessage(
-    chatId,
-    `📝 Отлично! Тогда давай пройдём небольшой тест 👇\n\n` +
-    `Он поможет понять, насколько эта работа тебе подходит и где ты сможешь быстрее вырасти.\n\n` +
-    `👉 ${testLink}\n\n` +
-    `После прохождения просто напиши сюда «Готово».`
-);
+            `📝 Отлично! Тогда давай пройдём небольшой тест 👇\n\n` +
+            `Он поможет понять, насколько эта работа тебе подходит и где ты сможешь быстрее вырасти.\n\n` +
+            `👉 ${testLink}\n\n` +
+            `После прохождения просто напиши сюда «Готово».`
         );
 
-        const state = dialogues.get(chatId) || {};
-        state.step = 'testing';
-        dialogues.set(chatId, state);
+        const userState = dialogues.get(chatId) || {};
+userState.step = 'waiting_test_done';
+dialogues.set(chatId, userState);
+
     }
 });
+
 
 bot.on('polling_error', (error) => {
     console.error('Ошибка polling:', error);
