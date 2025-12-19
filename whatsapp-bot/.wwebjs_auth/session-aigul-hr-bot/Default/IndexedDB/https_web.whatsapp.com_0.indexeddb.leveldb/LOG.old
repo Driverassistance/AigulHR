@@ -1,0 +1,19 @@
+2025/10/21-15:27:08.830 43cc Reusing MANIFEST C:\work\Aigul-dashboard\whatsapp-bot\.wwebjs_auth\session-aigul-hr-bot\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/MANIFEST-000001
+2025/10/21-15:27:08.830 43cc Recovering log #226
+2025/10/21-15:27:08.895 43cc Reusing old log C:\work\Aigul-dashboard\whatsapp-bot\.wwebjs_auth\session-aigul-hr-bot\Default\IndexedDB\https_web.whatsapp.com_0.indexeddb.leveldb/000226.log 
+2025/10/21-15:27:10.656 43cc Level-0 table #234: started
+2025/10/21-15:27:10.665 43cc Level-0 table #234: 704742 bytes OK
+2025/10/21-15:27:10.666 43cc Delete type=0 #226
+2025/10/21-15:27:10.667 43cc Manual compaction at level-0 from '\x00!\x00\x00\x00' @ 72057594037927935 : 1 .. '\x00"\x00\x00\x00' @ 0 : 0; will stop at (end)
+2025/10/21-15:27:11.874 43cc Compacting 1@1 + 4@2 files
+2025/10/21-15:27:11.925 43cc Generated table #235@1: 59291 keys, 2221454 bytes
+2025/10/21-15:27:11.980 43cc Generated table #236@1: 24608 keys, 2188157 bytes
+2025/10/21-15:27:12.041 43cc Generated table #237@1: 32413 keys, 2177504 bytes
+2025/10/21-15:27:12.134 43cc Generated table #238@1: 99379 keys, 2065312 bytes
+2025/10/21-15:27:12.134 43cc Compacted 1@1 + 4@2 files => 8652427 bytes
+2025/10/21-15:27:12.163 43cc compacted to: files[ 0 0 4 0 0 0 0 ]
+2025/10/21-15:27:12.163 43cc Delete type=2 #228
+2025/10/21-15:27:12.163 43cc Delete type=2 #229
+2025/10/21-15:27:12.163 43cc Delete type=2 #230
+2025/10/21-15:27:12.163 43cc Delete type=2 #231
+2025/10/21-15:27:12.163 43cc Delete type=2 #234

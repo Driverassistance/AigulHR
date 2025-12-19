@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Айгуль HR - HappySnack</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .phone-container {
+            max-width: 375px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 25px;
+            padding: 6px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .phone-screen {
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            min-height: 700px;
+            position: relative;
+        }
+        
+        .status-bar {
+            background: #f8f9fa;
+            padding: 8px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1px;
+            background: #e9ecef;
+            margin: 20px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+        
+        .main-content {
+            padding: 0 20px 20px;
+        }
+        
+        .add-candidate {
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+            cursor: pointer;
+        }
+        
+        .recent-candidates {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 80px;
+        }
+        
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 12px;
+        }
+        
+        .candidate-item {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .candidate-info h4 {
+            font-size: 14px;
+            color: #212529;
+            margin-bottom: 2px;
+        }
+        
+        .candidate-info p {
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .status-new { background: #fff3cd; color: #856404; }
+        .status-dialogue { background: #d4edda; color: #155724; }
+        .status-test { background: #d1ecf1; color: #0c5460; }
+        .status-passed { background: #cce5ff; color: #004085; }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 363px;
+            background: white;
+            border-radius: 20px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-around;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            z-index: 100;
+        }
+        
+        .nav-item {
+            text-align: center;
+            color: #6c757d;
+            font-size: 12px;
+            cursor: pointer;
+            padding: 8px;
+        }
+        
+        .nav-item.active {
+            color: #667eea;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 200;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+        }
+        
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            width: 100%;
+            margin-bottom: 8px;
+            cursor: pointer;
+        }
+        
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #495057;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-container">
+        <div class="phone-screen">
+            <!-- STATUS BAR -->
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>📶 🔋</span>
+            </div>
+            
+            <!-- HEADER -->
+            <div class="header">
+                <h1>🤖 Айгуль HR</h1>
+                <p>AI рекрутер HappySnack</p>
+            </div>
+            
+            <!-- STATS -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <span class="stat-number" id="totalCandidates">-</span>
+                    <div class="stat-label">Кандидатов</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="testsSent">-</span>
+                    <div class="stat-label">Тестов</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="testsPassed">-</span>
+                    <div class="stat-label">Прошли</div>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-number" id="conversionRate">-%</span>
+                    <div class="stat-label">Конверсия</div>
+                </div>
+            </div>
+            
+            <!-- MAIN CONTENT -->
+            <div class="main-content">
+                <!-- ADD CANDIDATE BUTTON -->
+                <button class="add-candidate" onclick="showAddModal()">
+                    <span>➕</span>
+                    Добавить кандидата
+                </button>
+                
+                <!-- QUICK ACTIONS -->
+                <div class="quick-actions">
+                    <button class="action-btn" onclick="refreshData()">📊 Обновить</button>
+                    <button class="action-btn" onclick="openDashboard()">⚙️ Настройки</button>
+                </div>
+                
+                <!-- RECENT CANDIDATES -->
+                <div class="recent-candidates">
+                    <div class="section-title">Последние кандидаты</div>
+                    <div id="candidatesList">
+                        <div style="text-align: center; color: #6c757d; padding: 20px;">
+                            Загрузка...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- BOTTOM NAV -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <div>🏠</div>
+            Главная
+        </div>
+        <div class="nav-item">
+            <div>👥</div>
+            Кандидаты
+        </div>
+        <div class="nav-item">
+            <div>📊</div>
+            Статистика
+        </div>
+        <div class="nav-item">
+            <div>⚙️</div>
+            Настройки
+        </div>
+    </div>
+    
+    <!-- ADD CANDIDATE MODAL -->
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px;">Добавить кандидата</h3>
+            
+            <div id="successMessage" style="display: none;"></div>
+            
+            <div class="form-group">
+                <label>Имя *</label>
+                <input type="text" id="candidateName" placeholder="Введите имя">
+                <div class="error" id="nameError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Телефон *</label>
+                <input type="text" id="candidatePhone" placeholder="+7 xxx xxx xx xx">
+                <div class="error" id="phoneError"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="candidateEmail" placeholder="example@mail.com">
+            </div>
+            
+            <div class="form-group">
+                <label>Источник *</label>
+                <select id="candidateSource">
+                    <option value="">Выберите источник</option>
+                    <option value="hh.kz">hh.kz</option>
+                    <option value="rabota.kz">rabota.kz</option>
+                    <option value="LinkedIn">LinkedIn</option>
+                    <option value="Рекомендация">Рекомендация</option>
+                    <option value="Реклама">Реклама</option>
+                    <option value="Другое">Другое</option>
+                </select>
+                <div class="error" id="sourceError"></div>
+            </div>
+            
+            <button class="btn-primary" onclick="addCandidate()" id="addButton">➕ Добавить</button>
+            <button class="btn-secondary" onclick="hideAddModal()">Отмена</button>
+        </div>
+    </div>
+    
+    <script>
+        // 🔧 ИСПРАВЛЕНО: Принудительное использование localhost:3001
+        const API_BASE = 'http://localhost:3001/api';
+        
+        // Load initial data
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            loadCandidates();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(() => {
+                loadStats();
+                loadCandidates();
+            }, 30000);
+        });
+        
+        // Load statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${API_BASE}/stats`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const stats = await response.json();
+                
+                document.getElementById('totalCandidates').textContent = stats.totalCandidates || 0;
+                document.getElementById('testsSent').textContent = stats.testsSent || 0;
+                document.getElementById('testsPassed').textContent = stats.testsPassed || 0;
+                document.getElementById('conversionRate').textContent = `${stats.conversionRate || 0}%`;
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+                // Показываем ошибку в интерфейсе
+                document.getElementById('totalCandidates').textContent = 'X';
+            }
+        }
+        
+        // Load recent candidates
+        async function loadCandidates() {
+            try {
+                const response = await fetch(`${API_BASE}/candidates`);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                const candidates = await response.json();
+                
+                const container = document.getElementById('candidatesList');
+                
+                if (candidates.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; color: #6c757d; padding: 20px;">
+                            Пока нет кандидатов
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Show only last 5 candidates
+                const recentCandidates = candidates.slice(-5).reverse();
+                
+                container.innerHTML = recentCandidates.map(candidate => `
+                    <div class="candidate-item">
+                        <div class="candidate-info">
+                            <h4>${candidate.name}</h4>
+                            <p>${candidate.phone} • ${candidate.source}</p>
+                        </div>
+                        <span class="status-badge ${getStatusClass(candidate.status)}">${candidate.status}</span>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Ошибка загрузки кандидатов:', error);
+                document.getElementById('candidatesList').innerHTML = `
+                    <div style="text-align: center; color: #dc3545; padding: 20px;">
+                        Ошибка: ${error.message}<br>
+                        <small>Проверьте что сервер запущен на localhost:3001</small>
+                    </div>
+                `;
+            }
+        }
+        
+        // Get status CSS class
+        function getStatusClass(status) {
+            switch (status) {
+                case 'Новый': return 'status-new';
+                case 'В диалоге': return 'status-dialogue';
+                case 'Тест отправлен': return 'status-test';
+                case 'Тест пройден': return 'status-passed';
+                default: return 'status-new';
+            }
+        }
+        
+        // Show add candidate modal
+        function showAddModal() {
+            document.getElementById('addModal').style.display = 'flex';
+            clearForm();
+        }
+        
+        // Hide add candidate modal
+        function hideAddModal() {
+            document.getElementById('addModal').style.display = 'none';
+            clearForm();
+        }
+        
+        // Clear form
+        function clearForm() {
+            document.getElementById('candidateName').value = '';
+            document.getElementById('candidatePhone').value = '';
+            document.getElementById('candidateEmail').value = '';
+            document.getElementById('candidateSource').value = '';
+            
+            // Clear errors
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+            document.getElementById('successMessage').style.display = 'none';
+        }
+        
+        // Validate form
+        function validateForm() {
+            let isValid = true;
+            
+            const name = document.getElementById('candidateName').value.trim();
+            const phone = document.getElementById('candidatePhone').value.trim();
+            const source = document.getElementById('candidateSource').value;
+            
+            // Clear previous errors
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+            
+            if (!name) {
+                document.getElementById('nameError').textContent = 'Имя обязательно';
+                isValid = false;
+            }
+            
+            if (!phone) {
+                document.getElementById('phoneError').textContent = 'Телефон обязателен';
+                isValid = false;
+            } else if (!/^\+7[\d\s\-\(\)]{10,}/.test(phone)) {
+                document.getElementById('phoneError').textContent = 'Некорректный номер телефона';
+                isValid = false;
+            }
+            
+            if (!source) {
+                document.getElementById('sourceError').textContent = 'Выберите источник';
+                isValid = false;
+            }
+            
+            return isValid;
+        }
+        
+        // Add candidate - ИСПРАВЛЕНО
+        async function addCandidate() {
+            if (!validateForm()) {
+                return;
+            }
+            
+            const button = document.getElementById('addButton');
+            const originalText = button.textContent;
+            
+            try {
+                // Show loading state
+                button.textContent = '⏳ Добавление...';
+                button.disabled = true;
+                
+                const candidateData = {
+                    name: document.getElementById('candidateName').value.trim(),
+                    phone: document.getElementById('candidatePhone').value.trim(),
+                    email: document.getElementById('candidateEmail').value.trim(),
+                    source: document.getElementById('candidateSource').value
+                };
+                
+                console.log('Отправляем данные:', candidateData);
+                console.log('URL:', `${API_BASE}/candidates`);
+                
+                const response = await fetch(`${API_BASE}/candidates`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(candidateData)
+                });
+                
+                console.log('Ответ сервера:', response.status, response.statusText);
+                
+                if (response.ok) {
+                    const newCandidate = await response.json();
+                    console.log('Новый кандидат:', newCandidate);
+                    
+                    // Show success message
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.textContent = `✅ Кандидат ${candidateData.name} успешно добавлен! Айгуль начинает работу...`;
+                    successMsg.style.display = 'block';
+                    successMsg.className = 'success';
+                    
+                    // Clear form
+                    clearForm();
+                    
+                    // Refresh data
+                    loadStats();
+                    loadCandidates();
+                    
+                    // Hide modal after 2 seconds
+                    setTimeout(() => {
+                        hideAddModal();
+                    }, 2000);
+                    
+                } else {
+                    const errorText = await response.text();
+                    console.error('Ошибка сервера:', errorText);
+                    throw new Error(`Ошибка ${response.status}: ${errorText}`);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                
+                const successMsg = document.getElementById('successMessage');
+                successMsg.textContent = `❌ Ошибка: ${error.message}`;
+                successMsg.style.display = 'block';
+                successMsg.className = 'error';
+                
+            } finally {
+                // Reset button
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Refresh data
+        function refreshData() {
+            loadStats();
+            loadCandidates();
+            
+            // Show feedback
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '🔄 Обновляю...';
+            
+            setTimeout(() => {
+                button.textContent = originalText;
+            }, 1000);
+        }
+        
+        // Open full dashboard
+        function openDashboard() {
+            window.open('http://localhost:3001', '_blank');
+        }
+        
+        // Handle phone input formatting
+        document.getElementById('candidatePhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            if (value.startsWith('7')) {
+                value = '+7 ' + value.slice(1);
+            } else if (value.startsWith('8')) {
+                value = '+7 ' + value.slice(1);
+            } else if (!value.startsWith('+7')) {
+                value = '+7 ' + value;
+            }
+            
+            // Format as +7 XXX XXX XX XX
+            const match = value.match(/^\+7\s?(\d{0,3})(\d{0,3})(\d{0,2})(\d{0,2})/);
+            if (match) {
+                value = `+7 ${match[1]}${match[2] ? ' ' + match[2] : ''}${match[3] ? ' ' + match[3] : ''}${match[4] ? ' ' + match[4] : ''}`;
+            }
+            
+            e.target.value = value;
+        });
+        
+        // Handle Enter key in modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && document.getElementById('addModal').style.display === 'flex') {
+                addCandidate();
+            }
+            if (e.key === 'Escape') {
+                hideAddModal();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+  "name": "aigul-telegram-coordinator",
+  "version": "1.0.0",
+  "description": "Telegram координатор для AI HR агента Айгуль",
+  "main": "telegram-bot.js",
+  "scripts": {
+    "start": "node telegram-bot.js",
+    "dev": "nodemon telegram-bot.js",
+    "test": "echo \"Тестирование Telegram бота\" && exit 0"
+  },
+  "keywords": [
+    "telegram",
+    "bot",
+    "hr",
+    "ai",
+    "claude",
+    "whatsapp",
+    "coordinator"
+  ],
+  "author": "Ереке + Claude",
+  "license": "MIT",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.64.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
