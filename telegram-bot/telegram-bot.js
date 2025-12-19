@@ -480,7 +480,6 @@ if (state.step === 'waiting_test_done' && isTestDone(text)) {
     return; // ⛔ дальше не идём
 }
 
-    const chatId = msg.chat.id;
     const text = msg.text;
 
     if (!text || text.startsWith('/')) return;
