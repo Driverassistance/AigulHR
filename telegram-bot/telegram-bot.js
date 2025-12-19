@@ -480,9 +480,7 @@ if (state.step === 'waiting_test_done' && isTestDone(text)) {
     return; // ⛔ дальше не идём
 }
 
-    const text = msg.text;
-
-    if (!text || text.startsWith('/')) return;
+        if (!text || text.startsWith('/')) return;
 
     // получаем состояние диалога
     const state = dialogues.get(chatId) || { step: 'intro' };
