@@ -8,10 +8,23 @@ const TELEGRAM_TOKEN = process.env.BOT_TOKEN;
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY; 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
-const ADMINS = [
-    473294026, // ← ТВОЙ Telegram ID
-    987654321  // ← Telegram ID Динары
+// ===== ADMIN NOTIFICATIONS =====
+
+// временно: ID добавим позже
+const ADMIN_CHAT_IDS = [
+  // 123456789, // Динара
+  // 987654321  // Ты
 ];
+
+async function notifyAdmins(text) {
+  for (const chatId of ADMIN_CHAT_IDS) {
+    try {
+      await bot.sendMessage(chatId, text, { parse_mode: 'Markdown' });
+    } catch (err) {
+      console.error('Ошибка уведомления админа:', err.message);
+    }
+  }
+}
 function isAdmin(userId) {
     return ADMINS.includes(userId);
 }
@@ -550,6 +563,15 @@ bot.on('message', async (msg) => {
 
   dialogues.set(chatId, state);
 });
+await notifyAdmins(
+`🧪 *Кандидат готов к тесту*
+
+Имя: ${query.from.first_name || 'Без имени'}
+Telegram ID: ${query.from.id}
+Источник: Айгуль
+
+Ожидаем прохождение теста.`
+);
 
 // ✅ Один обработчик кнопки "📝 Пройти тест" → выдаём ссылку
 bot.on('callback_query', async (query) => {

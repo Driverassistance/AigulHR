@@ -51,10 +51,14 @@ app.post('/webhook/netlify/test-completed', async (req, res) => {
 
         async function sendTG(chatId) {
             if (!chatId) return;
-            await axios.post(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
-                chat_id: chatId,
-                text: message
-            });
+            await axios.post(
+  `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`,
+  {
+    chat_id: process.env.ADMIN_CHAT_ID_PLACEHOLDER,
+    text: `✅ Кандидат прошёл тест\n\nИмя: ${name}\nБаллы: ${score}%`,
+    parse_mode: 'Markdown'
+  }
+);
         }
 
         await sendTG(DINARA_TELEGRAM_ID);
