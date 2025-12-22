@@ -617,6 +617,51 @@ app.post('/telegram-webhook', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.post('/api/test-result', async (req, res) => {
+  const { tg_id, score, max_score, details } = req.body;
+
+  if (!tg_id) {
+    return res.status(400).json({ error: 'tg_id required' });
+  }
+
+  try {
+    // 1) сохраняем в Airtable / БД
+    await axios.patch(
+      `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/КАНДИДАТЫ`,
+      {
+        records: [{
+          fields: {
+            'TG_ID': tg_id,
+            'Тест_балл': score,
+            'Тест_макс': max_score,
+            'Тест_детали': JSON.stringify(details),
+            'Статус': 'Тест пройден'
+          }
+        }]
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${AIRTABLE_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    // 2) уведомление Динаре и тебе
+    notifySupervisors({
+      tg_id,
+      score,
+      max_score,
+      details
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('❌ test-result error:', err.message);
+    res.status(500).json({ error: 'save failed' });
+  }
+});
+
 app.listen(PORT, () => {
     console.log(`🚀 Webhook server listening on port ${PORT}`);
 });
