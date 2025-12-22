@@ -310,6 +310,16 @@ app.use(express.static('public'));
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+// 🔔 Telegram Webhook
+app.post('/telegram-webhook', async (req, res) => {
+    try {
+        await bot.processUpdate(req.body);
+        res.sendStatus(200);
+    } catch (err) {
+        console.error('Telegram webhook error:', err);
+        res.sendStatus(500);
+    }
+});
 
 // Запуск сервера
 app.listen(PORT, () => {
