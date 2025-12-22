@@ -324,6 +324,7 @@ app.get('/', (req, res) => {
 });
 // 🔔 Telegram Webhook
 // 🔔 Telegram Webhook (принимаем на Render и пересылаем на Railway)
+// 🔔 Telegram Webhook (Render → Railway forward)
 app.post('/telegram-webhook', async (req, res) => {
     try {
         if (!TELEGRAM_WEBHOOK_FORWARD_URL) {
@@ -331,7 +332,6 @@ app.post('/telegram-webhook', async (req, res) => {
             return res.sendStatus(500);
         }
 
-        // простая защита: проверяем секрет (мы его сами будем передавать при setWebhook)
         const secret = req.headers['x-telegram-bot-api-secret-token'];
         if (TELEGRAM_WEBHOOK_SECRET && secret !== TELEGRAM_WEBHOOK_SECRET) {
             console.warn('Invalid telegram secret token');
@@ -344,11 +344,16 @@ app.post('/telegram-webhook', async (req, res) => {
         });
 
         return res.sendStatus(200);
+
     } catch (err) {
-        console.error('Telegram webhook forward error:', err.response?.data || err.message);
+        console.error(
+            'Telegram webhook forward error:',
+            err.response?.data || err.message
+        );
         return res.sendStatus(500);
     }
 });
+
 
 
 // Запуск сервера
