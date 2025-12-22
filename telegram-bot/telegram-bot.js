@@ -500,7 +500,8 @@ const userId = msg.from?.id;
 if (isAdmin(userId)) return;
 
 // состояние кандидата
-let state = dialogues.get(chatId);
+state = dialogues.get(chatId);
+
 
 if (!state) {
     state = {
@@ -566,8 +567,8 @@ for (const adminId of ADMINS) {
 }
 
     // 2) уведомляем Динару (Telegram)
-    const candidateName = msg.from.first_name || 'Кандидат';
-    const username = msg.from.username ? `@${msg.from.username}` : '—';
+    candidateName = msg.from.first_name || 'Кандидат';
+    userName = msg.from.first_name || 'Кандидат';
 
     await bot.sendMessage(
         DINARA_TELEGRAM_ID, // ⚠️ вставим на шаге 2
