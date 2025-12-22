@@ -500,13 +500,19 @@ const userId = msg.from?.id;
 if (isAdmin(userId)) return;
 
 // состояние кандидата
-const state = dialogues.get(chatId) || {
-  step: 'ask_name',
-  name: null,
-  hasExperience: null,
-  remindCount: 0,
-  lastBotMessageAt: Date.now()
-};
+let state = dialogues.get(chatId);
+
+if (!state) {
+    state = {
+        step: 'ask_name',
+        name: null,
+        hasExperience: null,
+        remindCount: 0,
+        lastBotMessageAt: Date.now()
+    };
+    dialogues.set(chatId, state);
+}
+
 
 // 1) мусор / не по теме
 if (looksLikeJunk(text)) {
