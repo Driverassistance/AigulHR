@@ -389,7 +389,7 @@ async function checkSystemComponents() {
     
     // Проверяем Dashboard
     try {
-        await axios.get('http://localhost:3001/api/stats', { timeout: 5000 });
+        await axios.get(`${process.env.DASHBOARD_URL}/api/stats`, { timeout: 5000 });
         statuses.dashboard = true;
     } catch (error) {
         console.log('Dashboard недоступен');
