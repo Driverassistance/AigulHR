@@ -4,7 +4,7 @@ const axios = require('axios');
 // 🔑 КОНФИГУРАЦИЯ
 require('dotenv').config();
 
-const TELEGRAM_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const TELEGRAM_TOKEN = process.env.BOT_TOKEN;
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY; 
 const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -27,6 +27,7 @@ const dialogues = new Map();
 
 
 // 🤖 Инициализация бота
+console.log("BOT_TOKEN exists:", !!process.env.BOT_TOKEN);
 const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
 // 🧠 PROMPT Айгуль (если не задан в .env — используем дефолт)
 const AIGUL_PROMPT = process.env.AIGUL_PROMPT || `
