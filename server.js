@@ -7,6 +7,14 @@ const AIRTABLE_API_KEY = process.env.AIRTABLE_API_KEY;
 const AIRTABLE_BASE_ID = process.env.AIRTABLE_BASE_ID;
 const app = express();
 const PORT = process.env.PORT || 3001;
+// ===== Telegram webhook forward (Dashboard -> Railway Bot) =====
+const TELEGRAM_WEBHOOK_FORWARD_URL = process.env.TELEGRAM_WEBHOOK_FORWARD_URL; 
+// пример: https://<твоя-railway-служба>.up.railway.app/telegram-webhook
+const TELEGRAM_WEBHOOK_SECRET = process.env.TELEGRAM_WEBHOOK_SECRET; 
+// любой секрет, чтобы никто не слал тебе левак
+const WHATSAPP_BOT_URL = process.env.WHATSAPP_BOT_URL; 
+// пример: https://<whatsapp-service>/start-dialogue
+
 
 // Middleware (НО БЕЗ СТАТИЧЕСКИХ ФАЙЛОВ ПОКА!)
 app.use(cors());
@@ -128,13 +136,13 @@ let settings = {
     commission_min: "3%", 
     commission_max: "7%",
     real_income: "250,000-500,000₸+",
-    test_link: "happysnacktest.netlify.app",
-    dinara_phone: "+7 702 123 45 67",
-    company_email: "hr@happysnack.kz",
-    office_address: "г. Алматы, ул. Достык 123",
+    test_link: "https://happysnacktest.netlify.app/",
+    dinara_phone: "+7 700 080 4848",
+    company_email: "info@happysnack.kz",
+    office_address: "г. Алматы, ул. Суюнбая 263",
     max_reminders: 3,
     message_interval: "2 дня",
-    work_hours: "9:00-19:00",
+    work_hours: "9:00-18:00",
     default_language: "автоопределение"
 };
 
@@ -218,15 +226,17 @@ app.post('/api/candidates', async (req, res) => {
         
         // НОВЫЙ БЛОК: Уведомляем WhatsApp бота
         try {
-            await axios.post('http://localhost:3002/start-dialogue', {
-                phone: newCandidate.phone,
-                name: newCandidate.name,
-                source: newCandidate.source
-            });
-            console.log('🚀 WhatsApp диалог запущен для', newCandidate.name);
-        } catch (whatsappError) {
-            console.log('❌ WhatsApp недоступен:', whatsappError.message);
-        }
+            if (WHATSAPP_BOT_URL) {
+    await axios.post(WHATSAPP_BOT_URL, {
+        phone: newCandidate.phone,
+        name: newCandidate.name,
+        source: newCandidate.source
+    });
+    console.log('🚀 WhatsApp диалог запущен для', newCandidate.name);
+} else {
+    console.log('ℹ️ WHATSAPP_BOT_URL не задан — WhatsApp интеграция отключена');
+}
+
         
         res.status(201).json(newCandidate);
         
@@ -243,7 +253,8 @@ app.put('/api/candidates/:id', (req, res) => {
     
     console.log(`🔄 Обновление кандидата ${id}:`, updates);
     
-    const candidateIndex = candidates.findIndex(c => c.id === parseInt(id));
+    const candidateIndex = candidates.findIndex(c => String(c.id) === String(id));
+
     
     if (candidateIndex === -1) {
         return res.status(404).json({ error: 'Кандидат не найден' });
@@ -291,7 +302,8 @@ app.put('/api/scripts', (req, res) => {
 // 💬 Диалог кандидата
 app.get('/api/candidates/:id/dialogue', (req, res) => {
     const { id } = req.params;
-    const candidate = candidates.find(c => c.id === parseInt(id));
+    const candidate = candidates.find(c => String(c.id) === String(id));
+
     
     if (!candidate) {
         return res.status(404).json({ error: 'Кандидат не найден' });
@@ -311,15 +323,33 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 // 🔔 Telegram Webhook
+// 🔔 Telegram Webhook (принимаем на Render и пересылаем на Railway)
 app.post('/telegram-webhook', async (req, res) => {
     try {
-        await bot.processUpdate(req.body);
-        res.sendStatus(200);
+        if (!TELEGRAM_WEBHOOK_FORWARD_URL) {
+            console.error('TELEGRAM_WEBHOOK_FORWARD_URL is not set');
+            return res.sendStatus(500);
+        }
+
+        // простая защита: проверяем секрет (мы его сами будем передавать при setWebhook)
+        const secret = req.headers['x-telegram-bot-api-secret-token'];
+        if (TELEGRAM_WEBHOOK_SECRET && secret !== TELEGRAM_WEBHOOK_SECRET) {
+            console.warn('Invalid telegram secret token');
+            return res.sendStatus(401);
+        }
+
+        await axios.post(TELEGRAM_WEBHOOK_FORWARD_URL, req.body, {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 8000
+        });
+
+        return res.sendStatus(200);
     } catch (err) {
-        console.error('Telegram webhook error:', err);
-        res.sendStatus(500);
+        console.error('Telegram webhook forward error:', err.response?.data || err.message);
+        return res.sendStatus(500);
     }
 });
+
 
 // Запуск сервера
 app.listen(PORT, () => {
