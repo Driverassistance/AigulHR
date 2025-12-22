@@ -190,61 +190,67 @@ app.post('/api/candidates', async (req, res) => {
     }
     
     try {
-        // Отправляем в Airtable
-        const airtableResponse = await axios.post(
-            `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/КАНДИДАТЫ`,
-            {
-                fields: {
-                    'Имя': name,
-                    'Телефон': phone,
-                    'Email': email || '',
-                    'Источник': source,
-                    'Статус': 'Новый'
-                }
-            },
-            {
-                headers: {
-                    'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
-                    'Content-Type': 'application/json'
-                }
+    // Отправляем кандидата в Airtable
+    const airtableResponse = await axios.post(
+        `https://api.airtable.com/v0/${AIRTABLE_BASE_ID}/КАНДИДАТЫ`,
+        {
+            fields: {
+                'Имя': name,
+                'Телефон': phone,
+                'Email': email || '',
+                'Источник': source,
+                'Статус': 'Новый'
             }
-        );
-        
-        const newCandidate = {
-            id: airtableResponse.data.id,
-            name,
-            phone,
-            email: email || '',
-            source,
-            status: "Новый"
-        };
-        
-        // Добавляем и в локальный массив для совместимости
-        candidates.push(newCandidate);
-        
-        console.log(`✅ Кандидат добавлен в Airtable: ${name}`);
-        
-        // НОВЫЙ БЛОК: Уведомляем WhatsApp бота
-        try {
-            if (WHATSAPP_BOT_URL) {
-    await axios.post(WHATSAPP_BOT_URL, {
-        phone: newCandidate.phone,
-        name: newCandidate.name,
-        source: newCandidate.source
-    });
-    console.log('🚀 WhatsApp диалог запущен для', newCandidate.name);
-} else {
-    console.log('ℹ️ WHATSAPP_BOT_URL не задан — WhatsApp интеграция отключена');
+        },
+        {
+            headers: {
+                'Authorization': `Bearer ${AIRTABLE_API_KEY}`,
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+
+    const newCandidate = {
+        id: airtableResponse.data.id,
+        name,
+        phone,
+        email: email || '',
+        source,
+        status: 'Новый'
+    };
+
+    // Добавляем в локальный массив (совместимость)
+    candidates.push(newCandidate);
+
+    console.log(`✅ Кандидат добавлен в Airtable: ${name}`);
+
+    // 🔔 Уведомление WhatsApp (НЕ критично)
+    try {
+        if (WHATSAPP_BOT_URL) {
+            await axios.post(WHATSAPP_BOT_URL, {
+                phone: newCandidate.phone,
+                name: newCandidate.name,
+                source: newCandidate.source
+            });
+            console.log('🚀 WhatsApp диалог запущен для', newCandidate.name);
+        } else {
+            console.log('ℹ️ WHATSAPP_BOT_URL не задан — WhatsApp интеграция отключена');
+        }
+    } catch (waError) {
+        console.error('⚠️ Ошибка уведомления WhatsApp:', waError.message);
+    }
+
+    // ✅ Успешный ответ
+    res.status(201).json(newCandidate);
+
+} catch (error) {
+    console.error(
+        '❌ Ошибка Airtable:',
+        error.response?.data || error.message
+    );
+    res.status(500).json({ error: 'Ошибка добавления в базу данных' });
 }
 
-        
-        res.status(201).json(newCandidate);
-        
-    } catch (error) {
-        console.error('❌ Ошибка Airtable:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Ошибка добавления в базу данных' });
-    }
-});
 
 // 🔄 Обновить кандидата  
 app.put('/api/candidates/:id', (req, res) => {
