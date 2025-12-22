@@ -563,15 +563,6 @@ bot.on('message', async (msg) => {
 
   dialogues.set(chatId, state);
 });
-await notifyAdmins(
-`🧪 *Кандидат готов к тесту*
-
-Имя: ${query.from.first_name || 'Без имени'}
-Telegram ID: ${query.from.id}
-Источник: Айгуль
-
-Ожидаем прохождение теста.`
-);
 
 // ✅ Один обработчик кнопки "📝 Пройти тест" → выдаём ссылку
 bot.on('callback_query', async (query) => {
@@ -602,7 +593,14 @@ bot.on('callback_query', async (query) => {
         }
       }
     );
+ await notifyAdmins(
+`🧪 *Кандидат готов к тесту*
 
+Имя: ${query.from.first_name || 'Без имени'}
+Telegram ID: ${query.from.id}
+Источник: Айгуль`
+        );
+    
     const st = dialogues.get(chatId) || {};
     st.step = 'waiting_test_done';
     dialogues.set(chatId, st);
