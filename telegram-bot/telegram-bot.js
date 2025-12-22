@@ -665,15 +665,26 @@ bot.on('callback_query', async (query) => {
         const tgId = query.from.id;
         const name = encodeURIComponent(query.from.first_name || 'Кандидат');
 
-        const testLink = `https://happysnacktest.netlify.app/?tg_id=${tgId}&name=${name}`;
+        const testUrl = `https://happysnacktest.netlify.app/?tg_id=${chatId}&source=aigul`;
 
-        await bot.sendMessage(
-            chatId,
-            `📝 Отлично! Тогда давай пройдём небольшой тест 👇\n\n` +
-            `Он поможет понять, насколько эта работа тебе подходит и где ты сможешь быстрее вырасти.\n\n` +
-            `👉 ${testLink}\n\n` +
-            `После прохождения просто напиши сюда «Готово».`
-        );
+        bot.sendMessage(chatId,
+`Отлично 👍  
+
+Тест короткий и спокойный.  
+Он поможет вам:
+— увидеть свои сильные стороны  
+— понять, что можно усилить  
+— получить рекомендации  
+
+Готовы начать?`,
+{
+  reply_markup: {
+    inline_keyboard: [
+      [{ text: '🧪 Начать тест', url: testUrl }]
+    ]
+  }
+});
+
 
         const userState = dialogues.get(chatId) || {};
 userState.step = 'waiting_test_done';
