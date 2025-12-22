@@ -588,17 +588,15 @@ bot.on('callback_query', async (query) => {
 });
 
 // 📊 ПЕРИОДИЧЕСКИЕ ОТЧЕТЫ (оставляем как у тебя, но без polling_error)
-setInterval(async () => {
-  try {
-    const stats = await getSystemStats();
+// === AUTO REPORT TEMP DISABLED ===
+// setInterval(async () => {
+//     try {
+//         const stats = await getSystemStats();
+//     } catch (error) {
+//         console.error('Ошибка автоотчета:', error);
+//     }
+// }, 60000);
 
-    if (new Date().getHours() % 6 === 0 && new Date().getMinutes() === 0) {
-      console.log('📊 Автоматический отчет:', stats);
-    }
-  } catch (error) {
-    console.error('Ошибка автоотчета:', error);
-  }
-}, 60000);
 
 console.log('✅ Telegram бот готов к работе!');
 console.log('📱 Команды: /start, /add, /stats, /status');
