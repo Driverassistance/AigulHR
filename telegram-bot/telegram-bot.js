@@ -25,6 +25,18 @@ async function notifyAdmins(text) {
     }
   }
 }
+function normalizeText(text = '') {
+  return text.toLowerCase().trim();
+}
+
+function isGarbage(text) {
+  if (!text) return true;
+  if (text.length > ALLOWED_TEXT_LENGTH) return true;
+  if (/https?:\/\//i.test(text)) return true; // ссылки
+  if (/[\u{1F600}-\u{1F6FF}]/u.test(text) && text.length < 3) return true; // тупо эмодзи
+  return false;
+}
+
 function isAdmin(userId) {
     return ADMINS.includes(userId);
 }
@@ -49,6 +61,11 @@ const userState = {};
 // WhatsApp бот URL (когда запустим локально)
 const WHATSAPP_BOT_URL = 'http://localhost:3002';
 const dialogues = new Map();
+// ===== INPUT FILTERS =====
+
+const ALLOWED_YES = ['да', 'готов', 'согласен', 'ок', 'хочу', 'поехали'];
+const ALLOWED_NO  = ['нет', 'не готов', 'позже', 'не сейчас'];
+const ALLOWED_TEXT_LENGTH = 300; // защита от полотен
 
 
 // 🤖 Инициализация бота
@@ -522,7 +539,8 @@ bot.on('message', async (msg) => {
       hasExperience: null,
       remindCount: 0,
       lastBotMessageAt: Date.now(),
-      junkWarned: false
+      junkWarned: false,
+	  attempts: 0
     };
     dialogues.set(chatId, state);
   }
@@ -537,7 +555,20 @@ bot.on('message', async (msg) => {
     }
     return;
   }
+  if (isGarbage(text)) {
+    return; // молча игнорируем
+  }
 
+  // 🧠 ограничение попыток
+  state.attempts = (state.attempts || 0) + 1;
+  if (state.attempts > 7) {
+    await bot.sendMessage(chatId,
+      'Я не совсем понимаю сообщение 🙂\nЕсли хотите подробнее — лучше свяжитесь с супервайзером:\n📞 +7 700 080 4848 (Динара)'
+    );
+    return;
+  }
+
+  dialogues.set(chatId, state);
   // 2) если попросили прайс/условия — сразу Динара
   if (asksCatalogOrDetails(text)) {
     state.step = 'handover_to_supervisor';
