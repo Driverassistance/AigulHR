@@ -49,17 +49,25 @@ app.post('/webhook/netlify/test-completed', async (req, res) => {
         const OWNER_TELEGRAM_ID = process.env.OWNER_TELEGRAM_ID;
         const TG_BOT_TOKEN = process.env.TG_BOT_TOKEN;
 
-        async function sendTG(chatId) {
-            if (!chatId) return;
-            await axios.post(
-  `https://api.telegram.org/bot${process.env.BOT_TOKEN}/sendMessage`,
-  {
-    chat_id: process.env.ADMIN_CHAT_ID_PLACEHOLDER,
-    text: `✅ Кандидат прошёл тест\n\nИмя: ${name}\nБаллы: ${score}%`,
-    parse_mode: 'Markdown'
-  }
-);
-        }
+        // BEGIN PATCH: fix sendTG for Netlify webhook
+async function sendTG(chatId) {
+    if (!chatId) return;
+    if (!TG_BOT_TOKEN) {
+        console.error('TG_BOT_TOKEN is not set');
+        return;
+    }
+
+    await axios.post(
+        `https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`,
+        {
+            chat_id: chatId,
+            text: message
+        },
+        { timeout: 8000 }
+    );
+}
+// END PATCH
+
 
         await sendTG(DINARA_TELEGRAM_ID);
         await sendTG(OWNER_TELEGRAM_ID);
@@ -230,19 +238,20 @@ app.post('/api/candidates', async (req, res) => {
 
     // 🔔 Уведомление WhatsApp (НЕ критично)
     try {
-        if (WHATSAPP_BOT_URL) {
-            await axios.post(WHATSAPP_BOT_URL, {
-                phone: newCandidate.phone,
-                name: newCandidate.name,
-                source: newCandidate.source
-            });
-            console.log('🚀 WhatsApp диалог запущен для', newCandidate.name);
-        } else {
-            console.log('ℹ️ WHATSAPP_BOT_URL не задан — WhatsApp интеграция отключена');
-        }
-    } catch (waError) {
-        console.error('⚠️ Ошибка уведомления WhatsApp:', waError.message);
+    if (WHATSAPP_BOT_URL) {
+        await axios.post(WHATSAPP_BOT_URL, {
+            phone: newCandidate.phone,
+            name: newCandidate.name,
+            source: newCandidate.source
+        }, { timeout: 8000 });
+
+        console.log('🚀 WhatsApp диалог запущен для', newCandidate.name);
+    } else {
+        console.log('ℹ️ WHATSAPP_BOT_URL не задан — WhatsApp интеграция отключена');
     }
+} catch (waError) {
+    console.error('⚠️ Ошибка уведомления WhatsApp:', waError.message);
+}
 
     // ✅ Успешный ответ
     res.status(201).json(newCandidate);
@@ -266,14 +275,13 @@ app.put('/api/candidates/:id', (req, res) => {
     
     const candidateIndex = candidates.findIndex(c => String(c.id) === String(id));
 
-    
-    if (candidateIndex === -1) {
-        return res.status(404).json({ error: 'Кандидат не найден' });
-    }
-    
-    candidates[candidateIndex] = { ...candidates[candidateIndex], ...updates };
-    
-    res.json(candidates[candidateIndex]);
+if (candidateIndex === -1) {
+    return res.status(404).json({ error: 'Кандидат не найден' });
+}
+
+candidates[candidateIndex] = { ...candidates[candidateIndex], ...updates };
+
+res.json(candidates[candidateIndex]);
 });
 
 // ⚙️ Настройки
